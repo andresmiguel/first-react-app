@@ -21,6 +21,23 @@ const list = [{
 ];
 
 class App extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      list
+    };
+
+    this.onDismiss = this.onDismiss.bind(this);
+  }
+
+  onDismiss(objectID) {
+    this.setState({
+      list: this.state.list.filter(obj => obj.objectID !== objectID)
+    });
+  }
+
   render() {
     const helloWorld = 'Welcome to React!',
         message = 'My first App with React!';
@@ -31,7 +48,7 @@ class App extends Component {
           <h2>{helloWorld}</h2>
           <h3>{message}</h3>
         </div>
-        {list.map(item => (
+        {this.state.list.map(item => (
             <div key={item.objectID}>
               <span>
                 <a href={item.url}>{item.title}</a>
@@ -39,6 +56,11 @@ class App extends Component {
               <span>{item.author}</span>
               <span>{item.num_comments}</span>
               <span>{item.points}</span>
+              <span>
+                <button onClick={() => this.onDismiss(item.objectID)} type="button">
+                  Dismiss
+                </button>
+              </span>
             </div>
             ))}
       </div>
