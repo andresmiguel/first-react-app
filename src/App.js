@@ -49,8 +49,7 @@ class App extends Component {
   }
 
   render() {
-    const helloWorld = 'Welcome to React!',
-        message = 'My first App with React!';
+    const [helloWorld, message] = ['Welcome to React!', 'My first App with React!'];
     const {list, searchTerm} = this.state;
     return (
       <div className="App">
@@ -59,28 +58,77 @@ class App extends Component {
           <h2>{helloWorld}</h2>
           <h3>{message}</h3>
         </div>
-        <form>
-          <input
-            type="text"
-            onChange={this.onSearchChange}
+        <Search
+          value={searchTerm}
+          onChange={this.onSearchChange}>
+          Search
+        </Search>
+        <Table
+          list={list}
+          onDismiss={this.onDismiss}
+          pattern={searchTerm}
           />
-        </form>
-        {list.filter(isSearched(searchTerm)).map(item => (
-            <div key={item.objectID}>
-              <span>
-                <a href={item.url}>{item.title}</a>
-              </span>
-              <span>{item.author}</span>
-              <span>{item.num_comments}</span>
-              <span>{item.points}</span>
-              <span>
-                <button onClick={() => this.onDismiss(item.objectID)} type="button">
-                  Dismiss
-                </button>
-              </span>
-            </div>
-            ))}
       </div>
+    );
+  }
+}
+
+class Search extends Component {
+  render() {
+    const {value, onChange, children} = this.props;
+    return (
+      <form>
+        {children}<input
+          type="text"
+          value={value}
+          onChange={onChange}
+        />
+      </form>
+    );
+  }
+}
+
+class Table extends Component {
+  render() {
+    const {list, onDismiss, pattern} = this.props;
+    return (
+      <div>
+        {list.filter(isSearched(pattern)).map(item => (
+          <div key={item.objectID}>
+            <span>
+              <a href={item.url}>{item.title}</a>
+            </span>
+            <span>{item.author}</span>
+            <span>{item.num_comments}</span>
+            <span>{item.points}</span>
+            <span>
+              <Button
+                onClick={() => onDismiss(item.objectID)}>
+                Dismiss
+              </Button>
+            </span>
+          </div>
+          ))}
+        </div>
+    );
+  }
+}
+
+class Button extends Component {
+  render() {
+    const {
+      onClick,
+      className = '',
+      children
+    } = this.props;
+
+    return (
+      <button
+        onClick={onClick}
+        className={className}
+        type="button">
+        {children}
+      </button>
     );
   }
 }
