@@ -27,6 +27,7 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
     this.setSearchTopstories = this.setSearchTopstories.bind(this);
     this.fetchSearchTopstories = this.fetchSearchTopstories.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
   }
 
   setSearchTopstories(result) {
@@ -54,6 +55,12 @@ class App extends Component {
     this.setState({result: {...this.state.result, hits: updatedHits}});
   }
 
+  onSearchSubmit(event) {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopstories(searchTerm);
+    event.preventDefault();
+  }
+
   render() {
     const [helloWorld, message] = ['Welcome to React!', 'My first App with React!'];
     const {result, searchTerm} = this.state;
@@ -68,15 +75,14 @@ class App extends Component {
         <div className="interactions">
           <Search
             value={searchTerm}
-            onChange={this.onSearchChange}>
+            onChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}>
             Search
           </Search>
           { result &&
             <Table
               list={result.hits}
-              onDismiss={this.onDismiss}
-              pattern={searchTerm}
-              />
+              onDismiss={this.onDismiss} />
           }
         </div>
       </div>
@@ -84,17 +90,21 @@ class App extends Component {
   }
 }
 
-const Search = ({value, onChange, children}) =>
-    <form>
+const Search = ({value, onChange, onSubmit, children}) =>
+    <form onSubmit={onSubmit}>
       {children} <input
         type="text"
         value={value}
         onChange={onChange} />
+        <button
+          type="submit">
+          {children}
+        </button>
     </form>
 
-const Table = ({list, onDismiss, pattern}) =>
+const Table = ({list, onDismiss}) =>
     <div className="table">
-      {list.filter(isSearched(pattern)).map(item => (
+      {list.map(item => (
         <div key={item.objectID} className="table-row">
           <span style={{ width: '40%' }}>
             <a href={item.url}>{item.title}</a>
