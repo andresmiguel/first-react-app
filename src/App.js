@@ -57,7 +57,7 @@ class App extends Component {
   render() {
     const [helloWorld, message] = ['Welcome to React!', 'My first App with React!'];
     const {result, searchTerm} = this.state;
-    if (!result) return null;
+
     return (
       <div className="page">
         <div className="App-header">
@@ -71,11 +71,13 @@ class App extends Component {
             onChange={this.onSearchChange}>
             Search
           </Search>
-          <Table
-            list={result.hits}
-            onDismiss={this.onDismiss}
-            pattern={searchTerm}
-            />
+          { result &&
+            <Table
+              list={result.hits}
+              onDismiss={this.onDismiss}
+              pattern={searchTerm}
+              />
+          }
         </div>
       </div>
     );
