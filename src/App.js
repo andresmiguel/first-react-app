@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
@@ -155,6 +155,13 @@ const Search = ({value, onChange, onSubmit, children}) =>
         </button>
     </form>
 
+Search.propTypes = {
+  value: PropTypes.string,
+  children: PropTypes.node.isRequired,
+  onChange: PropTypes.func,
+  onSubmit: PropTypes.func
+};
+
 const Table = ({list, onDismiss}) =>
     <div className="table">
       {list.map(item => (
@@ -176,12 +183,35 @@ const Table = ({list, onDismiss}) =>
         ))}
     </div>
 
-const Button = ({onClick, className = '', children}) =>
+Table.propTypes = {
+  list: PropTypes.arrayOf(
+    PropTypes.shape({
+        objectID: PropTypes.string.isRequired,
+        author: PropTypes.string,
+        url: PropTypes.string,
+        num_comments: PropTypes.number,
+        points: PropTypes.number,
+      })
+    ).isRequired,
+  onDismiss: PropTypes.func.isRequired,
+};
+
+const Button = ({onClick, className, children}) =>
     <button
       onClick={onClick}
       className={className}
       type="button">
       {children}
     </button>
+
+Button.defaultProps = {
+  className: ''
+};
+
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired
+};
 
 export default App;
