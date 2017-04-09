@@ -24,7 +24,8 @@ class App extends Component {
     this.state = {
       results: null,
       searchKey: '',
-      searchTerm: DEFAULT_QUERY
+      searchTerm: DEFAULT_QUERY,
+      isLoading: false,
     };
 
     this.onSearchChange = this.onSearchChange.bind(this);
@@ -52,15 +53,17 @@ class App extends Component {
       results: {
         ...results,
         [searchKey]: { hits: updatedHits, page }
-      }
+      },
+      isLoading: false
     });
 
   }
 
   fetchSearchTopstories(searchTerm, page) {
-      fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
-        .then(response => response.json())
-        .then(result => this.setSearchTopstories(result));
+    this.setState({ isLoading: true });
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
+      .then(response => response.json())
+      .then(result => this.setSearchTopstories(result));
   }
 
   componentDidMount() {
@@ -105,7 +108,8 @@ class App extends Component {
     const {
       searchTerm,
       results,
-      searchKey } = this.state;
+      searchKey,
+      isLoading } = this.state;
     const page = (
       results &&
       results[searchKey] &&
@@ -134,9 +138,15 @@ class App extends Component {
           <Table
             list={list}
             onDismiss={this.onDismiss} />
-          <Button onClick={() => this.fetchSearchTopstories(searchKey, page + 1)}>
-            More
-          </Button>
+            <div className="interactions">
+              { isLoading
+                ? <Loading />
+                : <Button
+                  onClick={() => this.fetchSearchTopstories(searchKey, page + 1)}>
+                  More
+                </Button>
+              }
+            </div>
         </div>
       </div>
     );
@@ -230,5 +240,8 @@ Button.propTypes = {
   className: PropTypes.string,
   children: PropTypes.node.isRequired
 };
+
+const Loading = () =>
+  <div>Loading ...</div>
 
 export default App;
