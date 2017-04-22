@@ -40,29 +40,35 @@ class App extends Component {
     this.fetchSearchTopstories = this.fetchSearchTopstories.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.needsToSearchTopstories = this.needsToSearchTopstories.bind(this);
+    this.updateSearchTopstoriesState = this.updateSearchTopstoriesState.bind(this);
   }
 
   setSearchTopstories(result) {
     const { hits, page } = result;
-    const { searchKey, results } = this.state;
+    this.setState(this.updateSearchTopstoriesState(hits, page));
+  }
 
-    const oldHits =  results && results[searchKey]
-      ? results[searchKey].hits
-      : [];
+  updateSearchTopstoriesState(hits, page) {
+    return prevState => {
+      const { searchKey, results } = this.state;
+
+      const oldHits =  results && results[searchKey]
+        ? results[searchKey].hits
+        : [];
 
       const updatedHits = [
         ...oldHits,
         ...hits
       ];
 
-    this.setState({
-      results: {
-        ...results,
-        [searchKey]: { hits: updatedHits, page }
-      },
-      isLoading: false
-    });
-
+      return {
+        results: {
+          ...results,
+          [searchKey]: { hits: updatedHits, page }
+        },
+        isLoading: false
+      }
+    }
   }
 
   fetchSearchTopstories(searchTerm, page) {
