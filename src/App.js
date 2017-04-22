@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import {sortBy}from 'lodash';
+import classNames from 'classnames';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_PAGE = 0;
@@ -12,10 +13,6 @@ const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
-
-const isSearched = searchTerm => {
-    return item => !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase())
-}
 
 const SORTS = {
     NONE: list => list,
@@ -35,7 +32,8 @@ class App extends Component {
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
       isLoading: false,
-      sortKey: 'NONE'
+      sortKey: 'NONE',
+      isSortReverse: false
     };
 
     this.onSearchChange = this.onSearchChange.bind(this);
@@ -48,7 +46,8 @@ class App extends Component {
   }
 
   onSort(sortKey) {
-    this.setState({ sortKey });
+    const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
+    this.setState({ sortKey, isSortReverse });
   }
 
   setSearchTopstories(result) {
@@ -125,7 +124,8 @@ class App extends Component {
       results,
       searchKey,
       isLoading,
-      sortKey } = this.state;
+      sortKey,
+      isSortReverse } = this.state;
     const page = (
       results &&
       results[searchKey] &&
@@ -155,7 +155,8 @@ class App extends Component {
             list={list}
             onDismiss={this.onDismiss}
             sortKey={sortKey}
-            onSort={this.onSort} />
+            onSort={this.onSort}
+            isSortReverse={isSortReverse} />
             <div className="interactions">
               <ButtonWithLoading
                 isLoading={isLoading}
@@ -206,34 +207,43 @@ Search.propTypes = {
   onSubmit: PropTypes.func
 };
 
-const Table = ({list, onDismiss, sortKey, onSort}) =>
-    <div className="table">
+const Table = ({list, onDismiss, sortKey, onSort, isSortReverse}) => {
+  const sortedList = SORTS[sortKey](list);
+  const reverseSortedList = isSortReverse
+    ? sortedList.reverse()
+    : sortedList;
+
+    return (<div className="table">
       <div className="table-header">
         <span style={{ width: '40%' }}>
           <Sort
             sortKey={'TITLE'}
-            onSort={onSort}>
+            onSort={onSort}
+            activeSortKey={sortKey}>
             Title
           </Sort>
         </span>
         <span style={{ width: '30%' }}>
           <Sort
             sortKey={'AUTHOR'}
-            onSort={onSort}>
+            onSort={onSort}
+            activeSortKey={sortKey}>
             Author
           </Sort>
         </span>
         <span style={{ width: '10%' }}>
           <Sort
             sortKey={'COMMENTS'}
-            onSort={onSort}>
+            onSort={onSort}
+            activeSortKey={sortKey}>
             Comments
           </Sort>
         </span>
         <span style={{ width: '10%' }}>
           <Sort
             sortKey={'POINTS'}
-            onSort={onSort}>
+            onSort={onSort}
+            activeSortKey={sortKey}>
               Points
           </Sort>
         </span>
@@ -241,7 +251,7 @@ const Table = ({list, onDismiss, sortKey, onSort}) =>
           Archive
         </span>
       </div>
-      {SORTS[sortKey](list).map(item => (
+      {reverseSortedList.map(item => (
         <div key={item.objectID} className="table-row">
           <span style={{ width: '40%' }}>
             <a href={item.url}>{item.title}</a>
@@ -258,7 +268,9 @@ const Table = ({list, onDismiss, sortKey, onSort}) =>
           </span>
         </div>
         ))}
-    </div>
+    </div>);
+}
+
 
 Table.propTypes = {
   list: PropTypes.arrayOf(
@@ -299,9 +311,19 @@ const withLoading = (Component) => ({isLoading, ...rest}) =>
 
 const ButtonWithLoading = withLoading(Button);
 
-const Sort = ({ sortKey, onSort, children }) =>
-  <Button onClick={() => onSort(sortKey)}>
-    {children}
-  </Button>
+const Sort = ({ sortKey, onSort, children, activeSortKey }) => {
+  const sortClass = classNames(
+    'button-inline',
+    { 'button-active': sortKey === activeSortKey }
+  );
+  return (
+    <Button
+      onClick={() => onSort(sortKey)}
+      className={sortClass}>
+      {children}
+    </Button>
+  );
+}
+
 
 export default App;
